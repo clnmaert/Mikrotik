@@ -1,0 +1,43 @@
+:global botID "свое значение" ;
+:global myChatID "свое значение" ;
+
+:tool fetch url="https://api.telegram.org/bot$botID/getUpdates" ;
+:local content [/file get [/file find name=getUpdates] contents] ;
+
+:if ([/file get [/file find name=getUpdates] size] > 1000 ) do={
+:tool fetch url=("https://api.telegram.org/bot$botID/getUpdates\?offset=-1") keep-result=no;
+#:log warning "getUpdates clear"
+}
+
+:if ( [/file get [/file find name=getUpdates] size] > 50 ) do={
+
+:local startLoc  [:find $content "update_id" $lastEnd ] ;
+:set startLoc ( $startLoc + 11 ) ;
+:local endLoc [:find $content "," $startLoc] ;
+:local messageId ([:pick $content $startLoc $endLoc] + (1));
+:put [$messageId] ;
+#:log info message="updateID $messageId" ;
+
+:set startLoc  [:find $content "text" $lastEnd ] ;
+:set startLoc ( $startLoc  + 6 ) ;
+:local endLoc [:find $content "\"" ($startLoc)] ;
+:set endLoc ( $endLoc ) ;
+:local message [:pick $content ($startLoc + 1) $endLoc] ;
+:put [$message] ;
+#:log info message="message $message ";
+
+:set startLoc  [:find $content "chat" $lastEnd ] ;
+:set startLoc ( $startLoc + 12 ) ;
+:local endLoc [:find $content "," $startLoc] ;
+:local chatId ([:pick $content $startLoc $endLoc]);
+:put [$chatId] ;
+#:log info message="chatID $chatId ";
+:log warning $message;
+
+:if (($chatId = $myChatID) and (:put [/system script find name=$message] != "")) do={
+:tool fetch url=("https://api.telegram.org/bot$botID/sendmessage\?chat_id=".$chatId."&text=OK") keep-result=no;
+:system script run $message
+} else={:tool fetch url=("https://api.telegram.org/bot$botID/sendmessage\?chat_id=".$chatId."&text=I can't talk with you. ") keep-result=no} ;
+
+:tool fetch url=("https://api.telegram.org/bot$botID/getUpdates\?offset=$messageId") keep-result=no; 
+}

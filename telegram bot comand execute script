@@ -1,5 +1,5 @@
-:global botID "свое значение" ;
-:global myChatID "свое значение" ;
+:global botID "here is telegram bot TOKEN" ;
+:global myChatID "here is telegram chat ID" ;
 
 :tool fetch url="https://api.telegram.org/bot$botID/getUpdates" ;
 :local content [/file get [/file find name=getUpdates] contents] ;

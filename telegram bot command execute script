@@ -1,3 +1,5 @@
+#This script reads command from your telegram bot and executes another script the same name as command in telegram
+
 :global botID "here is telegram bot TOKEN" ;
 :global myChatID "here is telegram chat ID" ;
 
